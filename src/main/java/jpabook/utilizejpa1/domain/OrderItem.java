@@ -1,7 +1,9 @@
 package jpabook.utilizejpa1.domain;
 
-import jpabook.utilizejpa1.domain.Item.Item;
+import jpabook.utilizejpa1.domain.item.Item;
+import lombok.AccessLevel;
 import lombok.Getter;
+import lombok.NoArgsConstructor;
 import lombok.Setter;
 
 import javax.persistence.*;
@@ -10,6 +12,7 @@ import javax.persistence.*;
 @Getter
 @Setter
 @Table(name="order_item")
+@NoArgsConstructor(access = AccessLevel.PROTECTED)
 public class OrderItem {
     @Id @GeneratedValue
     @Column(name="order_item_id")
@@ -25,4 +28,32 @@ public class OrderItem {
 
     private int orderPrice;
     private int count;
+
+
+    /**[생성메서드]
+     *  주문상품 생성
+     */
+    public static OrderItem createOrderItem(Item item, int orderPrice, int count){
+        OrderItem orderItem = new OrderItem();
+        orderItem.setItem(item);
+        orderItem.setOrderPrice(orderPrice);
+        orderItem.setCount(count);
+
+        item.decreaseStock(count);  //재고수량 감소
+        return orderItem;
+    }
+
+    /**[비즈니스 로직]
+     * 주문 취소시, 재고수량 수정
+     */
+    public void cancel(){
+        getItem().increaseStock(count);
+    }
+
+    /**[비즈니스 로직
+     * 주문상품 전체 가격 조회
+     */
+    public int getTotalPrice(){
+        return getOrderPrice() * getCount();
+    }
 }
